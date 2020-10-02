@@ -1,0 +1,20 @@
+set term postscript enh color
+set output "dpdx.ps"
+set grid
+set  title "Numerical solution of Coutte Flow" font ",20"
+set xlabel "u/V_p" font ",20"
+set ylabel "y/H" font ",20"
+set xrange [-2:5]
+set style line 1 dt 1 lw 4 lt rgb "orange"
+set style line 2  lw 2 lt rgb "green"
+set style line 3 dt 2 lw 4 lt rgb "blue"
+set style line 4  lw 2 lt rgb "violet"
+set style line 5 dt 3 lw 4 lt rgb "cyan"
+set style line 6 lw 2 lt rgb "red"
+
+plot "< paste -d '\t' dpdx-2.dat yVector.dat" using 1:($3) with lines ls 1 title "Exact: dpdx = -2", \
+     "< paste -d '\t' dpdx-2.dat yVector.dat" using 2:($3) ls 2 title "Numerical: dpdx = -2", \
+     "< paste -d '\t' dpdx0.dat yVector.dat" using 1:($3) with lines ls 3 title "Exact: dpdx = 0", \
+     "< paste -d '\t' dpdx0.dat yVector.dat" using 2:($3) ls 4 title "Numerical: dpdx = 0", \
+     "< paste -d '\t' dpdx2.dat yVector.dat" using 1:($3) with lines ls 5 title "Exact: dpdx = 2", \
+     "< paste -d '\t' dpdx2.dat yVector.dat" using 2:($3) ls 6 title "Numerical: dpdx = 2", \
