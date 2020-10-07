@@ -5,7 +5,7 @@ Author: Shawn Hinnebusch
 
 Date: 10/09/2020
 
-To compile: gcc -DDOUBLEPRES -O3 -o hw4.exe  main.c -lm
+To compile: gcc -DDOUBLEPREC -O3 -o hw4.exe  main.c -lm
 Single Precision: gcc -O3 -o hw4.exe  main.c -lm
 Example input:
 */
@@ -17,7 +17,7 @@ Example input:
 #include <stdlib.h>
 #include <sys/resource.h>
 
-#ifdef DOUBLEPRES
+#ifdef DOUBLEPREC
 typedef double   REAL;
 typedef long int INT;
 // NEED TO CHANGE BACK TO LONG_MAX
@@ -43,12 +43,11 @@ int main( )
     
 // ########################### Part 1 #########################################
 
-
     // Output the results to the file
     FILE *outputPart1;
     outputPart1 = fopen("Problem1Part1.dat", "w");
     if (!outputPart1) return 1;
-#ifdef DOUBLEPRES
+#ifdef DOUBLEPREC
     fprintf(outputPart1,"Double Precision: Infinite Series summation of 1/n\n");
 #else
     fprintf(outputPart1,"Single Precision: Infinite Series summation of 1/n\n");
@@ -63,7 +62,7 @@ int main( )
 
         if (residual < MACHINE_PRECISION) { break; }
 
-#ifdef DOUBLEPRES
+#ifdef DOUBLEPREC
         if (n % 10000000 == 0) {
             fprintf(outputPart1,"%12ld\t%e\t%10.15lf\n",n,residual,sum);
  //           fprintf(outputPart1,"%3ld %.15e || %.15e || %.15e\n",n,residual,sum);
@@ -74,9 +73,8 @@ int main( )
         }
 #endif
     }
-    
 
-#ifdef DOUBLEPRES
+#ifdef DOUBLEPREC
             fprintf(outputPart1,"%12ld\t%e\t%10.15lf\n",n,residual,sum);
            // fprintf(outputPart1,"%3ld %.15e || %.15e || %.15e\n",n,residual,sum);
 #else
@@ -85,12 +83,10 @@ int main( )
 
     // Finish time and display time
     GET_TIME(finish);
-
     elapsedTime = finish - start;
     fprintf(outputPart1,"Total time 1/n = %f seconds\n", elapsedTime);
 
     fclose(outputPart1);
-
 
 // ########################### Part 2 #########################################
     sum = 0;
@@ -101,7 +97,7 @@ int main( )
     output = fopen("Problem1Part2.dat", "w");
     if (!output) return 1;
 
-#ifdef DOUBLEPRES
+#ifdef DOUBLEPREC
     fprintf(output,"Double Precision: Infinite Series summation of 1/n^2\n");
 #else
     fprintf(output,"Single Precision: Infinite Series summation of 1/n^2\n");
@@ -113,7 +109,7 @@ int main( )
         residual = (1.0 / (n * n)) / sum;
 
         if (residual < MACHINE_PRECISION) { break; }
-#ifdef DOUBLEPRES
+#ifdef DOUBLEPREC
                 if (n % 10000 == 0) {
             fprintf(output,"%10ld\t%e\t%10.15lf\n",n,residual,sum);
 #else
@@ -124,7 +120,7 @@ int main( )
     } // end of Loop
 
 // Print final values after convergence
-#ifdef DOUBLEPRES
+#ifdef DOUBLEPREC
             fprintf(output,"%10ld\t%e\t%10.15lf\n",n,residual,sum);
 #else
             fprintf(output,"%d\t\t%e\t%9.6f\n",n,residual,sum);
