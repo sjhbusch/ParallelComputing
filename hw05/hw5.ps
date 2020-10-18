@@ -1,8 +1,8 @@
 %!PS-Adobe-3.0
-%%Title: hw5.c
+%%Title: hw5.cu
 %%For: Shawn
 %%Creator: a2ps version 4.14
-%%CreationDate: Sat Oct 17 20:22:56 2020
+%%CreationDate: Sat Oct 17 21:31:23 2020
 %%BoundingBox: 24 24 588 768
 %%DocumentData: Clean7Bit
 %%Orientation: Landscape
@@ -770,7 +770,7 @@ x0 y0 moveto
 ( * and to calculate a 1D stencil) N
 ( * Author: Shawn Hinnebusch) N
 ( * Date: 10/19/2020) N
-( * ) N
+( *) N
 ( * Part 2 code is VECTORADD 1) N
 ( * Part 3-5 code is VECTORADD 0) N
 () N
@@ -778,29 +778,31 @@ x0 y0 moveto
 () N
 ( * To compile on the CRC:) N
 ( * crc-interactive.py -g -u 1 -t 1 -p gtx1080) N
-( * nvcc -O3 -arch=sm_70 -o hw5.exe  hw5.cu -lm) N
+( * nvcc -O3 -gencode arch=compute_61,code=sm_61 -o hw5.exe  hw5.cu -lm) N
 () N
 ( * To run:) N
 ( * ./hw5.exe <vector size>) N
 ( * ./hw5.exe 1e8) N
 () N
-( * Create PDF: a2ps hw5.cu \342M-^HM-^R\342M-^HM-^Rpro=color \342M-^HM-^R\342M-^HM-^Rcolumns) N
-(=2 \342M-^HM-^RE \342M-^HM-^Ro hw5.ps | ps2pdf hw5.ps) N
+( * Create PDF: ) N
+( * a2ps hw5.cu --pro=color --columns=2 -E --pretty-print='c' -o hw5.ps | ps2pdf ) N
+(hw5.ps) N
 () N
+( * Compress: tar czvf Hinnebusch_hw5.tar.gz hw05/) N
 ( */) N
 () p n
+(#include) K
+( ") p
+(timer_nv.h) str
+(") p n
+(#include) K
+( <math.h>) p n
 (#include) K
 ( <stdio.h>) p n
 (#include) K
 ( <stdlib.h>) p n
 (#include) K
-( <math.h>) p n
-(#include) K
 ( <sys/resource.h>) p n
-(#include) K
-( ") p
-(timer_nv.h) str
-(") p n
 () N
 (#define) K
 ( VECTORADD 0 ) p
@@ -813,13 +815,11 @@ x0 y0 moveto
 (typedef) K
 ( ) p
 (int) k
-( INT;) p n
+(   INT;) p n
 (#define) K
 ( RADIUS 3) p n
 (#define) K
 ( BLOCK_SIZE 256) p n
-() N
-() N
 () N
 (// ########################### Stencil 1D Functions ###########################) c n
 (__global__ ) p
@@ -828,59 +828,58 @@ x0 y0 moveto
 (const) K
 ( REAL *in, REAL *out, ) p
 (const) K
-( INT n\) {) p n
-(    __shared__ REAL temp[BLOCK_SIZE + 2*RADIUS];) N
-(    INT gindex = threadIdx.x + blockIdx.x * blockDim.x;) N
-(    INT lindex = threadIdx.x + RADIUS;) N
+( INT n\)) p n
+({) N
+(    __shared__ REAL temp[ BLOCK_SIZE + 2 * RADIUS ];) N
+(    INT             gindex = threadIdx.x + blockIdx.x * blockDim.x;) N
+(    INT             lindex = threadIdx.x + RADIUS;) N
 () N
 (    ) S
 (// Read input elements into shared memory) c n
-(    __syncthreads\(\);) p n
-(    temp[lindex] = in[gindex];) N
+(    __syncthreads\( \);) p n
+(    temp[ lindex ] = in[ gindex ];) N
 (    ) S
 (// Fills temp vector with previous value unless its the first block) c n
 (    ) p
 (if) K
 ( \(threadIdx.x < RADIUS && gindex > RADIUS\) {) p n
-() S 8 T (temp[lindex - RADIUS] = in[gindex - RADIUS];) N
-() S 8 T () S
-(// Check to not exceed the largest block size before filling in ) c n
-() p 8 T () S
+(        temp[ lindex - RADIUS ] = in[ gindex - RADIUS ];) N
+(        ) S
+(// Check to not exceed the largest block size before filling in) c n
+(        ) p
 (// the last 2 ghost cells) c n
 (        ) p
 (if) K
-(\(gindex+ BLOCK_SIZE < n\){) p n
-() S 8 T (temp[lindex + BLOCK_SIZE] = in[gindex+BLOCK_SIZE];) N
-() S 8 T (}) N
+( \(gindex + BLOCK_SIZE < n\) { temp[ lindex + BLOCK_SIZE ] = in[ gindex ) p n
+(+ BLOCK_SIZE ]; }) N
 (    }) N
-(    __syncthreads\(\);) N
+(    __syncthreads\( \);) N
 () N
 (    ) S
 (// Apply the stencil) c n
 (    REAL result = 0.0;) p n
 (    ) S
 (if) K
-( \(gindex >= RADIUS && gindex < \(n - RADIUS\)\)) p n
-(    {) N
+( \(gindex >= RADIUS && gindex < \(n - RADIUS\)\) {) p n
 (        ) S
 (for) K
 ( \() p
 (int) k
-( offset = -RADIUS; offset <= RADIUS; offset++\){) p n
-(            result += temp[lindex + offset];) N
+( offset = -RADIUS; offset <= RADIUS; offset++\) {) p n
+(            result += temp[ lindex + offset ];) N
 (        }) N
 (    }) N
 () N
 (    ) S
 (// Store the result) c n
-(hw5.c) (Page 1/3) (Oct 17, 20 20:20) title
+(    out[ gindex ] = result;) p n
+(hw5.cu) (Page 1/3) (Oct 17, 20 21:30) title
 border
 /v 1 store
 /x0 x v get 3.147420 add sx cw mul add store
 /y0 y v get bfs th add sub store
 x0 y0 moveto
-(    out[gindex] = result;) p n
-(}) N
+(}) p n
 () N
 (void) k
 ( stencil_1d_cpu\() p
@@ -889,18 +888,18 @@ x0 y0 moveto
 (const) K
 ( INT n\)) p n
 ({) N
-(  ) S
+(    ) S
 (for) K
 ( \() p
 (int) k
-( i = RADIUS; i<\(n-RADIUS\); i++\){) p n
-(      ) S
+( i = RADIUS; i < \(n - RADIUS\); i++\) {) p n
+(        ) S
 (for) K
 ( \() p
 (int) k
-( offset = -RADIUS; offset <= RADIUS; offset++\){) p n
-(        out[i] += in[i + offset];) N
-(      }) N
+( offset = -RADIUS; offset <= RADIUS; offset++\) {) p n
+(            out[ i ] += in[ i + offset ];) N
+(        }) N
 (    }) N
 (}) N
 () N
@@ -908,21 +907,20 @@ x0 y0 moveto
 () p n
 (__global__ ) S
 (void) k
-( vector_add_gpu \() p
+( vector_add_gpu\() p
 (const) K
 ( INT n, ) p
 (const) K
 ( REAL *a, ) p
 (const) K
-( REAL *b, REAL ) p n
-(*c\) ) N
+( REAL *b, REAL *) p n
+(c\)) N
 ({) N
-(      INT tid = blockIdx.x*blockDim.x + threadIdx.x;) N
+(    INT tid = blockIdx.x * blockDim.x + threadIdx.x;) N
 () N
-(      ) S
+(    ) S
 (if) K
-( \(tid <  n\)) p n
-(         c[tid] = a[tid] + b[tid];) N
+( \(tid < n\) c[ tid ] = a[ tid ] + b[ tid ];) p n
 (}) N
 () N
 (void) k
@@ -934,12 +932,12 @@ x0 y0 moveto
 (const) K
 ( REAL *b, REAL *c\)) p n
 ({) N
-(  ) S
+(    ) S
 (for) K
 ( \() p
 (int) k
-( i = 0; i<n; i++\)) p n
-(      c[i] = a[i] + b[i];) N
+( i = 0; i < n; i++\)) p n
+(        c[ i ] = a[ i ] + b[ i ];) N
 (}) N
 () N
 (// ########################### Main Function ###########################) c n
@@ -949,75 +947,82 @@ x0 y0 moveto
 (char) k
 ( *argv[]\)) p n
 ({) N
-() N
 (    ) S
 (if) K
 ( \(argc < 2\) {) p n
-(       perror\(") S
+(        perror\(") S
 (Command-line usage: executableName <vector size>) str
 ("\);) p n
-(       exit\(1\);) N
+(        exit\(1\);) N
 (    }) N
 () N
 (    ) S
 (int) k
-( n = atof\(argv[1]\);) p n
+( n = atof\(argv[ 1 ]\);) p n
 () N
 (    printf\(") S
 (N: %d\\n) str
-(",n\);) p n
+(", n\);) p n
 () N
 (    ) S
 (// Initialize and alloc memory for arrays) c n
 (    REAL *x, *y;) p n
-(    cudaMallocManaged\(  &x, n * ) S
+(    cudaMallocManaged\(&x, n * ) S
 (sizeof) K
-( \(*x\)\);) p n
-(    cudaMallocManaged\(  &y, n * ) S
+(\(*x\)\);) p n
+(    cudaMallocManaged\(&y, n * ) S
 (sizeof) K
-( \(*y\)\);) p n
+(\(*y\)\);) p n
 () N
-(    #if VECTORADD ) N
+(#if) K
+( VECTORADD) p n
 (    REAL *z;) N
-(    cudaMallocManaged\(  &z, n * ) S
+(    cudaMallocManaged\(&z, n * ) S
 (sizeof) K
-( \(*z\)\);) p n
+(\(*z\)\);) p n
 (    ) S
 (// Init vectors for addition) c n
 (    ) p
 (for) K
 ( \() p
 (int) k
-( i = 0; i < n; i++\){) p n
-(        x[i] = 3.5;) N
-(        y[i] = 1.5;) N
+( i = 0; i < n; i++\) {) p n
+(        x[ i ] = 3.5;) N
+(        y[ i ] = 1.5;) N
 (    }) N
-(    #else ) S
+(#else) K
+( ) p
 (// stencil) c n
 (    ) p
-(// Init vectors for stencil ) c n
+(// Init vectors for stencil) c n
 (    ) p
 (// note y is for the result should start at zero) c n
 (    ) p
 (for) K
 ( \() p
 (int) k
-( i = 0; i < n; i++\){) p n
-(        x[i] = 1.0;) N
-(        y[i] = 0.0;) N
+( i = 0; i < n; i++\) {) p n
+(        x[ i ] = 1.0;) N
+(        y[ i ] = 0.0;) N
 (    }) N
-(    #endif) N
-() N
-() N
+(#endif) K n
+() p n
 (    ) S
 (// CPU Run) c n
-(    StartTimer\(\);) p n
+(    StartTimer\( \);) p n
 () N
-(hw5.c) (Page 2/3) (Oct 17, 20 20:20) title
+(#if) K
+( VECTORADD) p n
+(    vector_add_cpu\(n, x, y, z\);) N
+(#else) K
+( ) p
+(// stencil) c n
+(    stencil_1d_cpu\(x, y, n\);) p n
+(hw5.cu) (Page 2/3) (Oct 17, 20 21:30) title
 border
 grestore
 (Printed by Shawn) rhead
-(hw5.c) (1/2) (Saturday October 17, 2020) footer
+(hw5.cu) (1/2) (Saturday October 17, 2020) footer
 end % of iso1dict
 pagesave restore
 showpage
@@ -1033,49 +1038,40 @@ llx lly 12 add translate
 /x0 x v get 3.147420 add sx cw mul add store
 /y0 y v get bfs th add sub store
 x0 y0 moveto
-(    #if VECTORADD ) p n
-(    vector_add_cpu\(n,x,y,z\);) N
-(    #else ) S
-(// stencil) c n
-(    stencil_1d_cpu\(x,y,n\);) p n
-(    #endif) N
-() N
+(#endif) K n
+() p n
 (    ) S
 (double) k
-( cpu_elapsedTime = GetTimer\(\); ) p
-(//elapsed time is in seconds) c n
+( cpu_elapsedTime = GetTimer\( \); ) p
+(// elapsed time is in seconds) c n
 () p n
 (    ) S
 (// GPU Run) c n
-(    cudaEvent_t timeStart, timeStop; ) p
-(//WARNING!!! use events only to time the de) c n
-(vice) N
-(    cudaEventCreate\(&timeStart\);) p n
+(    cudaEvent_t timeStart, timeStop;) p n
+(    cudaEventCreate\(&timeStart\);) N
 (    cudaEventCreate\(&timeStop\);) N
 (    ) S
 (float) k
 ( gpu_elapsedTime; ) p
-(// make sure it is of type float, precision is millis) c n
-(econds \(ms\) !!!) N
+(// type float, precision is milliseconds \(ms\) !!!) c n
 () p n
 (    ) S
 (int) k
-( nBlocks   = \(n + BLOCK_SIZE -1\) / BLOCK_SIZE; ) p
-(//round up if n is not a m) c n
-(ultiple of blocksize) N
-() p n
-(    cudaEventRecord\(timeStart, 0\); ) S
-(//don't worry for the 2nd argument zero, it i) c n
-(s about cuda streams) N
-() p n
-(    #if VECTORADD ) N
-(    vector_add_gpu <<< nBlocks, BLOCK_SIZE >>> \(n, x, y, z\);) N
-(    #else ) S
-(// stencil) c n
-(    stencil_1d <<< nBlocks, BLOCK_SIZE >>> \(x, y, n\);) p n
-(    #endif) N
+( nBlocks = \(n + BLOCK_SIZE - 1\) / BLOCK_SIZE;) p n
 () N
-(    cudaDeviceSynchronize\(\);) N
+(    cudaEventRecord\(timeStart, 0\); ) S
+(// 2nd argument zero, cuda streams) c n
+() p n
+(#if) K
+( VECTORADD) p n
+(    vector_add_gpu< < < nBlocks, BLOCK_SIZE > > >\(n, x, y, z\);) N
+(#else) K
+( ) p
+(// stencil) c n
+(    stencil_1d< < < nBlocks, BLOCK_SIZE > > >\(x, y, n\);) p n
+(#endif) K n
+() p n
+(    cudaDeviceSynchronize\( \);) N
 () N
 (    cudaEventRecord\(timeStop, 0\);) N
 (    cudaEventSynchronize\(timeStop\);) N
@@ -1084,18 +1080,18 @@ x0 y0 moveto
 () N
 (    printf\(") S
 (elapsed wall time \(CPU\) = %5.4f ms\\n) str
-(", cpu_elapsedTime*1000.\);) p n
+(", cpu_elapsedTime * 1000.\);) p n
 (    printf\(") S
 (elapsed wall time \(GPU\) = %5.4f ms\\n\\n) str
 (", gpu_elapsedTime\);) p n
 () N
 (    cudaEventDestroy\(timeStart\);) N
 (    cudaEventDestroy\(timeStop\);) N
-(    ) N
+() N
 (    ) S
-(//Used to print final results of CPU or GPU) c n
+(// Used to print final results of CPU or GPU) c n
 (    ) p
-(//for \(int i = 0; i < n; i++\) {) c n
+(// for \(int i = 0; i < n; i++\) {) c n
 (    ) p
 (//    printf\("%f\\n", y[i]\);) c n
 (    ) p
@@ -1103,22 +1099,22 @@ x0 y0 moveto
 () p n
 (    cudaFree\(x\);) N
 (    cudaFree\(y\);) N
-(    ) N
-(    ) S
-(// Free additional vector for addition) c n
-(    #if VECTORADD ) p n
-(    cudaFree\(z\);) N
-(    #endif) N
 () N
+(// Free additional vector for addition) c n
+(#if) K
+( VECTORADD) p n
+(    cudaFree\(z\);) N
+(#endif) K n
+() p n
 (    ) S
 (return) K
 ( EXIT_SUCCESS;) p n
-(}) S
-(hw5.c) (Page 3/3) (Oct 17, 20 20:20) title
+(}) N
+(hw5.cu) (Page 3/3) (Oct 17, 20 21:30) title
 border
 grestore
 (Printed by Shawn) rhead
-(hw5.c) (2/2) (Saturday October 17, 2020) footer
+(hw5.cu) (2/2) (Saturday October 17, 2020) footer
 end % of iso1dict
 pagesave restore
 showpage
