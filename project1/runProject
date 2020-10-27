@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Time = 0.1
+nvcc -O3 -o project1.exe  project1.cu -lm
+nvcc -O3 -o project1.exe  project1.cu -DLX=0.25 -DTIME=0.1 -lm
+./project1.exe
+
+nvcc -O3 -o project1.exe  project1.cu -DLX=0.5 -DTIME=0.1 -lm
+./project1.exe
+
+nvcc -O3 -o project1.exe  project1.cu -DLX=0.75 -DTIME=0.1 -lm
+./project1.exe
+
+# Time = 0.5
+nvcc -O3 -o project1.exe  project1.cu -DLX=0.25 -DTIME=0.5  -lm
+./project1.exe
+
+nvcc -O3 -o project1.exe  project1.cu -DLX=0.5 -DTIME=0.5  -lm
+./project1.exe
+
+nvcc -O3 -o project1.exe  project1.cu -DLX=0.75 -DTIME=0.5  -lm
+./project1.exe
+
+# Time = 1.2
+nvcc -O3 -o project1.exe  project1.cu -DLX=0.25 -DTIME=1.2  -lm
+./project1.exe
+
+nvcc -O3 -o project1.exe  project1.cu -DLX=0.5 -DTIME=1.2  -lm
+./project1.exe
+
+nvcc -O3 -o project1.exe  project1.cu -DLX=0.75 -DTIME=1.2  -lm
+./project1.exe
+
+# Time = 1.5
+nvcc -O3 -o project1.exe  project1.cu -DLX=0.25 -DTIME=1.5  -lm
+./project1.exe
+
+nvcc -O3 -o project1.exe  project1.cu -DLX=0.5 -DTIME=1.5  -lm
+./project1.exe
+
+nvcc -O3 -o project1.exe  project1.cu -DLX=0.75 -DTIME=1.5  -lm
+./project1.exe
+
+
+
+
